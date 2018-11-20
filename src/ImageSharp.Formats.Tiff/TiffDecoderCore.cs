@@ -2,14 +2,16 @@
 using System;
 using System.IO;
 
-namespace ImageSharp.Formats.Tiff
+namespace SixLabors.ImageSharp.Formats.Tiff
 {
     internal class TiffDecoderCore
     {
-        public void Decode<TColor>(Image<TColor> image, Stream stream)
-            where TColor : struct, IPixel<TColor>
+        public Image<TPixel> Decode<TPixel>(Stream stream)
+            where TPixel : struct, PixelFormats.IPixel<TPixel>
         {
-            using (var sourceImage = BitMiracle.LibTiff.Classic.Tiff.Open(stream, "r"))
+            Image<TPixel> image = null;
+
+            using (var sourceImage = BitMiracle.LibTiff.Classic.Tiff.ClientOpen("Stream", "r", stream, new TiffStream()))
             {
                 // Find the width and height of the image
                 FieldValue[] value = sourceImage.GetField(TiffTag.IMAGEWIDTH);
@@ -19,17 +21,17 @@ namespace ImageSharp.Formats.Tiff
                 int height = value[0].ToInt();
 
                 value = sourceImage.GetField(TiffTag.XRESOLUTION);
-                int xRes = value[0].ToInt();
+                int xRes = value == null ? 0 : value[0].ToInt();
 
                 value = sourceImage.GetField(TiffTag.YRESOLUTION);
-                int yRes = value[0].ToInt();
+                int yRes = value == null ? 0 : value[0].ToInt();
 
-                if (width > image.MaxWidth || height > image.MaxHeight)
+                if (width > int.MaxValue || height > int.MaxValue)
                 {
-                    throw new ArgumentOutOfRangeException($"The input png '{width}x{height}' is bigger than the max allowed size '{image.MaxWidth}x{image.MaxHeight}'");
+                    throw new ArgumentOutOfRangeException($"The input png '{width}x{height}' is bigger than the max allowed size '{int.MaxValue}x{int.MaxValue}'");
                 }
 
-                image.InitPixels(width, height);
+                image = new Image<TPixel>(width, height);
 
                 int imageSize = height * width;
                 int[] raster = new int[imageSize];
@@ -40,30 +42,32 @@ namespace ImageSharp.Formats.Tiff
                     throw new Exception("Cannot read image into raster");
                 }
 
-                image.MetaData.HorizontalResolution = xRes;
-                image.MetaData.VerticalResolution = yRes;
-
-                TColor color = default(TColor);
-
-                using (var pixels = image.Lock())
+                if (xRes > 0 && yRes > 0)
                 {
-                    for (int y = 0; y < height; y++)
+                    image.MetaData.HorizontalResolution = xRes;
+                    image.MetaData.VerticalResolution = yRes;
+                }
+
+                TPixel pixel = default(TPixel);
+                
+                for (int y = 0; y < height; y++)
+                {
+                    for (int x = 0; x < width; x++)
                     {
-                        for (int x = 0; x < width; x++)
-                        {
-                            int offset = (height - y - 1) * width + x;
-                            int r = BitMiracle.LibTiff.Classic.Tiff.GetR(raster[offset]);
-                            int g = BitMiracle.LibTiff.Classic.Tiff.GetG(raster[offset]);
-                            int b = BitMiracle.LibTiff.Classic.Tiff.GetB(raster[offset]);
-                            int a = BitMiracle.LibTiff.Classic.Tiff.GetA(raster[offset]);
+                        int offset = (height - y - 1) * width + x;
+                        int r = BitMiracle.LibTiff.Classic.Tiff.GetR(raster[offset]);
+                        int g = BitMiracle.LibTiff.Classic.Tiff.GetG(raster[offset]);
+                        int b = BitMiracle.LibTiff.Classic.Tiff.GetB(raster[offset]);
+                        int a = BitMiracle.LibTiff.Classic.Tiff.GetA(raster[offset]);
 
-                            color.PackFromBytes((byte)(r), (byte)(g), (byte)(b), (byte)a);
+                        pixel.PackFromRgba32(new Rgba32((byte)(r), (byte)(g), (byte)(b), (byte)a));
 
-                            pixels[x, y] = color;
-                        }
+                        image[x, y] = pixel;
                     }
                 }
             }
+
+            return image;
         }
     }
 }

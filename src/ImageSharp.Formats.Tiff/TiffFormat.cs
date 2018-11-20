@@ -1,17 +1,20 @@
 ﻿using System.Collections.Generic;
 
-namespace ImageSharp.Formats.Tiff
+namespace SixLabors.ImageSharp.Formats.Tiff
 {
     public class TiffFormat : IImageFormat
     {
         /// <inheritdoc/>
-        public string MimeType => "image/tiff";
+        public string Name => "Tagged Image File Format (TIFF)";
 
         /// <inheritdoc/>
-        public string Extension => "tif";
+        public string DefaultMimeType => "image/tiff";
 
         /// <inheritdoc/>
-        public IEnumerable<string> SupportedExtensions => new string[] { "tif" };
+        public IEnumerable<string> MimeTypes => new string[] { "image/tiff" };
+        
+        /// <inheritdoc/>
+        public IEnumerable<string> FileExtensions => new string[] { "tif", "tiff" };
 
         /// <inheritdoc/>
         public IImageDecoder Decoder => new TiffDecoder();

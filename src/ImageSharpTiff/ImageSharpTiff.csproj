@@ -1,0 +1,25 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netcoreapp1.0</TargetFramework>
+    <AssemblyName>ImageSharpTiff</AssemblyName>
+    <OutputType>Exe</OutputType>
+    <PackageId>ImageSharpTiff</PackageId>
+    <RuntimeFrameworkVersion>1.1.1</RuntimeFrameworkVersion>
+    <PackageTargetFallback>$(PackageTargetFallback);dnxcore50</PackageTargetFallback>
+    <GenerateAssemblyConfigurationAttribute>false</GenerateAssemblyConfigurationAttribute>
+    <GenerateAssemblyCompanyAttribute>false</GenerateAssemblyCompanyAttribute>
+    <GenerateAssemblyProductAttribute>false</GenerateAssemblyProductAttribute>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\ImageSharp.Formats.Tiff\ImageSharp.Formats.Tiff.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="ImageSharp" Version="1.0.0-alpha2-00090" />
+    <PackageReference Include="ImageSharp.Formats.Png" Version="1.0.0-alpha2-00086" />
+    <PackageReference Include="ImageSharp.Processing" Version="1.0.0-alpha2-00078" />
+  </ItemGroup>
+
+</Project>

@@ -1,12 +1,14 @@
 ﻿using System.IO;
+using SixLabors.ImageSharp.PixelFormats;
 
-namespace ImageSharp.Formats.Tiff
+namespace SixLabors.ImageSharp.Formats.Tiff
 {
     public class TiffDecoder : IImageDecoder
     {
-        public void Decode<TColor>(Image<TColor> image, Stream stream) where TColor : struct, IPixel<TColor>
+        public Image<TPixel> Decode<TPixel>(Configuration configuration, Stream stream) where TPixel : struct, IPixel<TPixel>
         {
-            new TiffDecoderCore().Decode(image, stream);
+            var decoder = new TiffDecoderCore();
+            return decoder.Decode<TPixel>(stream);
         }
     }
 }

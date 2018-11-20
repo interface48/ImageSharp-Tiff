@@ -3,14 +3,17 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
+using SixLabors.ImageSharp.PixelFormats;
 
-namespace ImageSharp.Formats.Tiff
+namespace SixLabors.ImageSharp.Formats.Tiff
 {
     public class TiffEncoder : IImageEncoder
     {
-        public void Encode<TColor>(Image<TColor> image, Stream stream) where TColor : struct, IPixel<TColor>
+        public void Encode<TPixel>(Image<TPixel> image, Stream stream) where TPixel : struct, IPixel<TPixel>
         {
-            new TiffEncoderCore().Encode(image, stream);
+            throw new NotImplementedException();
+            //var encoder = new TiffEncoderCore();
+            //encoder.Encode(image, stream);
         }
     }
 }
